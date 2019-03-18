@@ -31,7 +31,7 @@
     name: python-docker
     state: absent
 
-- include_role: name=pip
+- include_role: name=yourlabs.pip
   vars:
     name: docker
 
@@ -57,6 +57,6 @@
     state: present
 
 - name: Put docker being a secure firewall
-  include_role: name=roleonce
+  include_role: name=yourlabs.roleonce
   vars:
-    name: firewall
+    name: yourlabs.firewall

@@ -11,5 +11,6 @@ galaxy_info:
     versions:
     - all
 
-dependencies:
-- yourlabs.pip
+softdependencies:
+- yourlabs.io/oss/yourlabs.pip
+- yourlabs.io/oss/yourlabs.roleonce
