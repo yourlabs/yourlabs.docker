@@ -1,0 +1,62 @@
+---
+
+- name: /etc/systemd/system/docker.service.d
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+#
+# - name: /etc/systemd/system/docker.service.d/override.conf
+#   copy:
+#     dest: /etc/systemd/system/docker.service.d/override.conf
+#     content: |
+#       [Service]
+#       ExecStart=
+#       ExecStart=/usr/bin/dockerd -H fd:// --iptables=false --ip-masq=false
+
+- name: add docker repository
+  include_role:
+    name: aptrepo
+  vars:
+    key_id: '9DC858229FC7DD38854AE2D88D81803C0EBFCD88'
+    key_url: https://download.docker.com/linux/ubuntu/gpg
+    repo: deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release|lower }} edge
+
+- name: Install docker-ce
+  package:
+    name: '{{ docker_package|default("docker-ce" if ansible_os_family == "Debian" else "docker") }}'
+    state: present
+
+- name: Ensure python-docker is uninstalled, we'll need the pip module
+  package:
+    name: python-docker
+    state: absent
+
+- include_role: name=pip
+  vars:
+    name: docker
+
+- name: Start docker on boot
+  service:
+    name: docker
+    enabled: yes
+    state: started
+
+- name: Add active_users to docker group
+  with_items: '{{ users|default([]) }}'
+  when: '{{ "docker" in item.get("roles", {}).get("ssh", []) }}'
+  user:
+    name: '{{ item["name"] }}'
+    state: present
+    groups: docker
+    append: yes
+
+- name: Increase vm.max_map_count to 1048576
+  sysctl:
+    name: vm.max_map_count
+    value: 1048576
+    state: present
+
+- name: Put docker being a secure firewall
+  include_role: name=roleonce
+  vars:
+    name: firewall
