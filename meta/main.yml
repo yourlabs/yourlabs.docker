@@ -10,7 +10,3 @@ galaxy_info:
   - name: GenericLinux
     versions:
     - all
-
-softdependencies:
-- yourlabs.io/oss/yourlabs.pip
-- yourlabs.io/oss/yourlabs.roleonce
