@@ -57,6 +57,4 @@
     state: present
 
 - name: Put docker being a secure firewall
-  include_role: name=yourlabs.roleonce
-  vars:
-    name: yourlabs.firewall
+  include_role: name=yourlabs.firewall
