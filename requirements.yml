@@ -1,0 +1,2 @@
+- src: git+https://yourlabs.io/oss/yourlabs.pip
+- src: git+https://yourlabs.io/oss/yourlabs.aptrepo
