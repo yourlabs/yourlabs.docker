@@ -1,7 +1,8 @@
 ---
 galaxy_info:
   author: James Pic
-  description: Role to setup docker with pip3 module
+  role_name: docker
+  description: Role to setup docker & docker-compose with pip3 module
   company: YourLabs
   issue_tracker_url: https://yourlabs.io/oss/yourlabs.docker/issues
   license: MIT
