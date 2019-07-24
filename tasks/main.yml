@@ -62,5 +62,17 @@
     value: 1048576
     state: present
 
+- name: Create a couple of system-wide networks, web and mail
+  docker_network:
+    name: '{{ item }}'
+  with_items: [web, mail]
+
 - name: Put docker being a secure firewall
   include_role: name=yourlabs.firewall
+
+- include_role:
+    name: yourlabs.remember
+  vars:
+    remember_fact: yourlabs.docker
+    remember_extra:
+      state: success
