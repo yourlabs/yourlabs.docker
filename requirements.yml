@@ -1,3 +1,4 @@
-- src: git+https://yourlabs.io/oss/yourlabs.aptrepo
-- src: git+https://yourlabs.io/oss/yourlabs.pip
-- src: git+https://yourlabs.io/oss/yourlabs.firewall
+- yourlabs.aptrepo
+- yourlabs.pip
+- yourlabs.firewall
+- yourlabs.remember
