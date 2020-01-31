@@ -57,9 +57,10 @@
     append: yes
 
 - name: Increase vm.max_map_count to 1048576
+  failed_when: false
   sysctl:
     name: vm.max_map_count
-    value: 1048576
+    value: "1048576"
     state: present
 
 - name: Create a couple of system-wide networks, web and mail
