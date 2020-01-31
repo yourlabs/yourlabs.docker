@@ -70,6 +70,54 @@
 
 - name: Put docker being a secure firewall
   include_role: name=yourlabs.firewall
+  vars:
+    rules: |
+      *filter
+      :INPUT ACCEPT [0:0]
+      :FORWARD DROP [0:0]
+      :LOGDROP - [0:0]
+      :OUTPUT ACCEPT [384:67874]
+      :TCP - [0:0]
+      :UDP - [0:0]
+      :DOCKER-USER - [0:0]
+      -A LOGDROP -p tcp -m limit --limit 5/min -j LOG --log-prefix "Denied TCP: " --log-level 7
+      -A LOGDROP -p udp -m limit --limit 5/min -j LOG --log-prefix "Denied UDP: " --log-level 7
+      -A LOGDROP -p icmp -m limit --limit 5/min -j LOG --log-prefix "Denied ICMP: " --log-level 7
+      -A LOGDROP -j DROP
+      -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+      -A INPUT -i lo -j ACCEPT
+      -A INPUT -i docker0 -j ACCEPT
+      {% if firewall_allow_ping %}
+      -A INPUT -p icmp -m icmp --icmp-type 8 -m conntrack --ctstate NEW -j ACCEPT
+      {% else %}
+      -A INPUT -p icmp -m icmp --icmp-type 8 -m conntrack --ctstate NEW -j LOGDROP
+      {% endif %}
+      -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
+      -A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
+      -A DOCKER-USER -i eno1 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+      -A DOCKER-USER -i eno1 -p tcp -m tcp --dport 80 -j ACCEPT
+      -A DOCKER-USER -i eno1 -p tcp -m tcp --dport 443 -j ACCEPT
+      -A DOCKER-USER -i eno1 -p tcp -m tcp --dport 587 -j ACCEPT
+      -A DOCKER-USER -i eno1 -j LOGDROP
+      -A TCP -p tcp -m tcp --dport 22 -j ACCEPT
+      -A TCP -p tcp -m tcp --dport 2222 -j ACCEPT
+      # allow netdata proxy
+      -A TCP -i docker0 -p tcp -m tcp --dport 19999 --dst 172.17.0.1 --src 172.17.0.1/16 -j ACCEPT
+      -A TCP -i docker0 -p tcp -m tcp --dport 4949 -j ACCEPT
+      -A UDP -i docker0 -p udp -m udp --dport 53 -j ACCEPT
+      -A INPUT -j LOGDROP
+      COMMIT
+
+- name: /etc/systemd/system/iptables.service.d/override.conf
+  notify: Apply firewall
+  copy:
+    dest: /etc/systemd/system/{{ firewall_service }}.service.d/override.conf
+    content: |
+      [Unit]
+      Before=docker.service
+
+- name: Restart docker
+  service: name=docker state=restarted
 
 - include_role:
     name: yourlabs.remember
