@@ -116,6 +116,8 @@
       [Unit]
       Before=docker.service
 
+- meta: flush_handlers
+
 - name: Restart docker
   service: name=docker state=restarted
 
