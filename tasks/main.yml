@@ -108,11 +108,6 @@
       {% endif %}
       -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
       -A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
-      -A DOCKER-USER -i eno1 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-      -A DOCKER-USER -i eno1 -p tcp -m tcp --dport 80 -j ACCEPT
-      -A DOCKER-USER -i eno1 -p tcp -m tcp --dport 443 -j ACCEPT
-      -A DOCKER-USER -i eno1 -p tcp -m tcp --dport 587 -j ACCEPT
-      -A DOCKER-USER -i eno1 -j LOGDROP
       -A TCP -p tcp -m tcp --dport 22 -j ACCEPT
       -A TCP -p tcp -m tcp --dport 2222 -j ACCEPT
       # allow netdata proxy
@@ -120,6 +115,15 @@
       -A TCP -i docker0 -p tcp -m tcp --dport 4949 -j ACCEPT
       -A UDP -i docker0 -p udp -m udp --dport 53 -j ACCEPT
       -A INPUT -j LOGDROP
+      {% for interface in ansible_interfaces %}
+      {% if interface.startswith('eno') or interface.startswith('ens') %}
+      -A DOCKER-USER -i {{ interface }} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+      -A DOCKER-USER -i {{ interface }} -p tcp -m tcp --dport 80 -j ACCEPT
+      -A DOCKER-USER -i {{ interface }} -p tcp -m tcp --dport 443 -j ACCEPT
+      -A DOCKER-USER -i {{ interface }} -p tcp -m tcp --dport 587 -j ACCEPT
+      -A DOCKER-USER -i {{ interface }} -j LOGDROP
+      {% endif %}
+      {% endfor %}
       COMMIT
 
 - name: /etc/systemd/system/iptables.service.d/override.conf
