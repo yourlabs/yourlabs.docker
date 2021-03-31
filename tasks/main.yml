@@ -32,6 +32,14 @@
     name: '{{ docker_package|default("docker-ce" if ansible_os_family == "Debian" else "docker") }}'
     state: present
 
+- name: Ensure docker-compose & docker-pythonpty are uninstalled (can't uninstall python-docker if installed (conflict))
+  when: ansible_distribution == 'Archlinux'
+  package:
+    name:
+    - docker-compose
+    - python-dockerpty
+    state: absent
+
 - name: Ensure python-docker is uninstalled, we'll need the pip module
   package:
     name: python-docker
@@ -49,11 +57,15 @@
     name: '{{ pkgs }}'
     state: latest
 
-- name: Pip install docker-compose
-  pip:
+- name: install docker-compose
+  when: ansible_distribution != "Archlinux"
+  package:
     name: docker-compose
     state: present
-    executable: pip3
+
+- name: install docker-compose
+  when: ansible_distribution == "Archlinux"
+  shell: pacman -Sy docker-compose --noconfirm --overwrite="*"
 
 - name: Start docker on boot
   service:
@@ -81,6 +93,12 @@
   docker_network:
     name: '{{ item }}'
   with_items: [web, mail]
+
+- name: iproute2 ubuntu
+  when: ansible_distribution == "Ubuntu"
+  package:
+    name: iproute2
+    state: present
 
 - name: Put docker being a secure firewall
   include_role: name=yourlabs.firewall
@@ -137,7 +155,9 @@
 - meta: flush_handlers
 
 - name: Restart docker
-  service: name=docker state=restarted
+  ansible.builtin.service:
+    name: docker
+    state: restarted
 
 - include_role:
     name: yourlabs.remember
@@ -145,3 +165,4 @@
     remember_fact: yourlabs.docker
     remember_extra:
       state: success
+
