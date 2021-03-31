@@ -154,11 +154,6 @@
 
 - meta: flush_handlers
 
-- name: Restart docker
-  ansible.builtin.service:
-    name: docker
-    state: restarted
-
 - include_role:
     name: yourlabs.remember
   vars:
