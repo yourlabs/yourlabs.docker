@@ -4,6 +4,9 @@
   file:
     path: /etc/systemd/system/docker.service.d
     state: directory
+    owner: root
+    group: root
+    mode: '755'
 #
 # - name: /etc/systemd/system/docker.service.d/override.conf
 #   copy:
@@ -36,8 +39,8 @@
   when: ansible_distribution == 'Archlinux'
   package:
     name:
-    - docker-compose
-    - python-dockerpty
+      - docker-compose
+      - python-dockerpty
     state: absent
 
 - name: Ensure python-docker is uninstalled, we'll need the pip module
@@ -45,7 +48,8 @@
     name: python-docker
     state: absent
 
-- include_role: name=yourlabs.pip
+- name: "Pip install docker"
+  include_role: name=yourlabs.pip
   vars:
     name: docker
 
@@ -70,7 +74,7 @@
 - name: Start docker on boot
   service:
     name: docker
-    enabled: yes
+    enabled: true
     state: started
 
 - name: Add active_users to docker group
@@ -80,7 +84,7 @@
     name: '{{ item["name"] }}'
     state: present
     groups: docker
-    append: yes
+    append: true
 
 - name: Increase vm.max_map_count to 1048576
   failed_when: false
@@ -151,13 +155,17 @@
     content: |
       [Unit]
       Before=docker.service
+    owner: root
+    group: root
+    mode: '755'
 
-- meta: flush_handlers
+- name: Flush handlers
+  meta: flush_handlers
 
-- include_role:
+- name: Yourlabs remember docker
+  include_role:
     name: yourlabs.remember
   vars:
     remember_fact: yourlabs.docker
     remember_extra:
       state: success
-
