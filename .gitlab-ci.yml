@@ -1,14 +1,22 @@
-test:
+testing:
+  stage: test
   image: yourlabs/ansible
   script:
     - ANSIBLE_HOST_KEY_CHECKING=False
       bigsudo .  root@target ansible_ssh_pass=root -v | tee out
     - grep 'unreachable=0.*failed=0' out
-    - pip install yamllint
-    - pip install ansible-lint
-    - curl -sk "https://raw.githubusercontent.com/ansible/galaxy/devel/galaxy/importer/linters/yamllint.yaml" >> ../yamllint.yml
-    - 'yamllint -c ../yamllint.yml . || :'
-    - 'ansible-lint . || :'
   services:
     - name: docker.io/yourlabs/sshd:ubuntu2004
       alias: target
+
+code_quality:
+  stage: test
+  image:
+    name: yourlabs/python
+    entrypoint: ["/bin/bash", "-c"]
+  script:
+    - pip install yamllint
+    - pip install ansible-lint
+    - curl -sk "https://raw.githubusercontent.com/ansible/galaxy/devel/galaxy/importer/linters/yamllint.yaml" > ../yamllint.yml
+    - 'yamllint -c ../yamllint.yml . || : && echo "No error"'
+    - 'ansible-lint --force-color  . || :'
