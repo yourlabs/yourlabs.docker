@@ -1,6 +1,4 @@
-
-yourlabs.docker
-===============
+# yourlabs.docker Ansible role
 
 One-liner to run dockerd with a firewall:
 
@@ -8,8 +6,17 @@ One-liner to run dockerd with a firewall:
 
 Best to run after ``bigsudo yourlabs.ssh @host``.
 
-Vagrant/VirtualBox
-------------------
+## Extra BigSudo Commands
+
+Install a yourlabs-docker-prune systemd timer:
+
+```sh
+bigsudo yourlabs.docker prunecron @host
+```
+
+Will run docker system prune --all --force --volumes every night at midnight.
+
+## Vagrant/VirtualBox
 
 You can work in a VM if you have vagrant:
 

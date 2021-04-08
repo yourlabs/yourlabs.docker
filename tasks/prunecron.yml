@@ -1,0 +1,8 @@
+---
+
+- name: Setup cron
+  include_role: name=yourlabs.timer
+  vars:
+    name: yourlabs-docker-prune
+    cmd: docker system prune --all --volumes --force
+    oncalendar: '*-*-* 00:00:00'
