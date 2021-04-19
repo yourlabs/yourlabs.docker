@@ -4,6 +4,9 @@
   file:
     path: /etc/systemd/system/docker.service.d
     state: directory
+    owner: root
+    group: root
+    mode: '755'
 #
 # - name: /etc/systemd/system/docker.service.d/override.conf
 #   copy:
@@ -32,12 +35,21 @@
     name: '{{ docker_package|default("docker-ce" if ansible_os_family == "Debian" else "docker") }}'
     state: present
 
+- name: Ensure docker-compose & docker-pythonpty are uninstalled (can't uninstall python-docker if installed (conflict))
+  when: ansible_distribution == 'Archlinux'
+  package:
+    name:
+      - docker-compose
+      - python-dockerpty
+    state: absent
+
 - name: Ensure python-docker is uninstalled, we'll need the pip module
   package:
     name: python-docker
     state: absent
 
-- include_role: name=yourlabs.pip
+- name: "Pip install docker"
+  include_role: name=yourlabs.pip
   vars:
     name: docker
 
@@ -49,16 +61,20 @@
     name: '{{ pkgs }}'
     state: latest
 
-- name: Pip install docker-compose
-  pip:
+- name: install docker-compose
+  when: ansible_distribution != "Archlinux"
+  package:
     name: docker-compose
     state: present
-    executable: pip3
+
+- name: install docker-compose
+  when: ansible_distribution == "Archlinux"
+  shell: pacman -Sy docker-compose --noconfirm --overwrite="*"
 
 - name: Start docker on boot
   service:
     name: docker
-    enabled: yes
+    enabled: true
     state: started
 
 - name: Add active_users to docker group
@@ -68,7 +84,7 @@
     name: '{{ item["name"] }}'
     state: present
     groups: docker
-    append: yes
+    append: true
 
 - name: Increase vm.max_map_count to 1048576
   failed_when: false
@@ -81,6 +97,12 @@
   docker_network:
     name: '{{ item }}'
   with_items: [web, mail]
+
+- name: iproute2 ubuntu
+  when: ansible_distribution == "Ubuntu"
+  package:
+    name: iproute2
+    state: present
 
 - name: Put docker being a secure firewall
   include_role: name=yourlabs.firewall
@@ -133,13 +155,15 @@
     content: |
       [Unit]
       Before=docker.service
+    owner: root
+    group: root
+    mode: '755'
 
-- meta: flush_handlers
+- name: Flush handlers
+  meta: flush_handlers
 
-- name: Restart docker
-  service: name=docker state=restarted
-
-- include_role:
+- name: Yourlabs remember docker
+  include_role:
     name: yourlabs.remember
   vars:
     remember_fact: yourlabs.docker
