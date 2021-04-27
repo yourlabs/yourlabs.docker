@@ -1,0 +1,4 @@
+---
+
+- name: Prune
+  shell: docker system prune -fa --volumes 
