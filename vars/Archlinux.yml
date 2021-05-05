@@ -5,3 +5,4 @@ pkgs:
 - python-setuptools
 - python-distutils-extra
 - docker
+- docker-compose

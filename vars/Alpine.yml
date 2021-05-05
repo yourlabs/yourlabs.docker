@@ -5,3 +5,4 @@ pkgs:
 - py3-distutils-extra
 - docker-py
 - docker
+- docker-compose
