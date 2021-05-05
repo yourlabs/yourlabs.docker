@@ -2,3 +2,4 @@
 pkgs:
 - py3-paramiko
 - docker-py
+- docker

@@ -29,12 +29,6 @@
     key_url: https://download.docker.com/linux/ubuntu/gpg
     repo: deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release|lower }} edge
 
-- name: Install docker-ce (non-centos)
-  when: ansible_distribution != 'CentOS'
-  package:
-    name: '{{ docker_package|default("docker-ce" if ansible_os_family == "Debian" else "docker") }}'
-    state: present
-
 - name: Include OS specific vars file
   include_vars: 'vars/{{ hostvars[inventory_hostname]["ansible_os_family"] }}.yml'
 
