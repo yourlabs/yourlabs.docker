@@ -16,6 +16,12 @@ bigsudo yourlabs.docker prunecron @host
 
 Will run docker system prune --all --force --volumes every night at midnight.
 
+For prune only one time, run:
+
+```sh
+bigsudo yourlabs.docker prune @host
+```
+
 ## Vagrant/VirtualBox
 
 You can work in a VM if you have vagrant:
