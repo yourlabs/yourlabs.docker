@@ -4,3 +4,4 @@ pkgs:
 - python3-docker
 - python3-distutils
 - docker-ce
+- docker-compose
