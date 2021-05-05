@@ -1,2 +1,4 @@
 ---
-pkgs: py3-paramiko
+pkgs:
+- py3-paramiko
+- docker-py

@@ -35,24 +35,6 @@
     name: '{{ docker_package|default("docker-ce" if ansible_os_family == "Debian" else "docker") }}'
     state: present
 
-- name: Ensure docker-compose & docker-pythonpty are uninstalled (can't uninstall python-docker if installed (conflict))
-  when: ansible_distribution == 'Archlinux'
-  package:
-    name:
-      - docker-compose
-      - python-dockerpty
-    state: absent
-
-- name: Ensure python-docker is uninstalled, we'll need the pip module
-  package:
-    name: python-docker
-    state: absent
-
-- name: "Pip install docker"
-  include_role: name=yourlabs.pip
-  vars:
-    name: docker
-
 - name: Include OS specific vars file
   include_vars: 'vars/{{ hostvars[inventory_hostname]["ansible_os_family"] }}.yml'
 
@@ -60,16 +42,6 @@
   package:
     name: '{{ pkgs }}'
     state: latest
-
-- name: install docker-compose
-  when: ansible_distribution != "Archlinux"
-  package:
-    name: docker-compose
-    state: present
-
-- name: install docker-compose
-  when: ansible_distribution == "Archlinux"
-  shell: pacman -Sy docker-compose --noconfirm --overwrite="*"
 
 - name: Start docker on boot
   service:
