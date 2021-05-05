@@ -1,5 +1,7 @@
 ---
 pkgs:
 - py3-paramiko
+- py3-setuptools
+- py3-distutils-extra
 - docker-py
 - docker
