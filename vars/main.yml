@@ -1,0 +1,30 @@
+---
+
+remember_fact: yourlabs.docker
+remember:
+- name: install_firewall
+  question: |
+    Do you want install a firewall ?
+    will add rules if firewall alrady exist
+  default: False
+  type: bool
+
+- name: firewall_allow_ping
+  question: Allow icmp in firewall ?
+  default: False
+  type: bool
+  when: install_firewall
+
+- name: allow_tcp_ports
+  question: | 
+    TCP ports to allow ?
+    example 8080,8888
+  type: string
+  when: install_firewall
+
+- name: allow_udp_ports
+  question: |
+    UDP port to allow ?
+    example 53,5353
+  type: string
+  when: install_firewall

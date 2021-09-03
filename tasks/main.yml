@@ -1,4 +1,5 @@
 ---
+- include_role: name=yourlabs.remember
 
 - name: /etc/systemd/system/docker.service.d
   file:
@@ -73,15 +74,15 @@
 - name: list for tcp ports
   set_fact:
     allow_tcp: "{{ allow_tcp_ports.split(',') | list }}"
-  when: allow_tcp_ports is defined and install_firewall is defined
+  when: allow_tcp_ports is defined and install_firewall is defined and not allow_tcp_ports == ""
 
 - name: list for udp ports
   set_fact:
     allow_udp: "{{ allow_udp_ports.split(',') | list }}"
-  when: allow_udp_ports is defined and install_firewall is defined
+  when: allow_udp_ports is defined and install_firewall is defined and not allow_udp_ports == ""
 
 - name: Put docker being a secure firewall
-  when: install_firewall is defined and install_firewall == "true"
+  when: install_firewall is defined and install_firewall
   include_role: name=yourlabs.firewall
   vars:
     rules: |
@@ -108,12 +109,12 @@
       -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
       -A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
       -A TCP -p tcp -m tcp --dport {{ ansible_ssh_port | default(22, True)}} -j ACCEPT
-      {% if allow_tcp is defined and allow_tcp|length>0 %}
+      {% if allow_tcp is defined %}
       {% for port in allow_tcp %}
       -A TCP -p tcp -m tcp --dport {{ port }} -j ACCEPT
       {% endfor %}
       {% endif %}
-      {% if allow_udp is defined and allow_udp|length>0 %}
+      {% if allow_udp is defined %}
       {% for port in allow_udp %}
       -A UDP -p udp -m udp --dport {{ port }} -j ACCEPT
       {% endfor %}
@@ -135,7 +136,7 @@
       COMMIT
 
 - name: /etc/systemd/system/iptables.service.d/override.conf
-  when: install_firewall is defined and install_firewall == "true"
+  when: install_firewall is defined and install_firewall
   notify: Apply firewall
   copy:
     dest: /etc/systemd/system/{{ firewall_service }}.service.d/override.conf

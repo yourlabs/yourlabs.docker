@@ -2,14 +2,6 @@
 
 One-liner to run dockerd with a firewall:
 
-    bigsudo yourlabs.docker install_firewall=true @host
-
-ssh port will be allow by default. For allowing specific ports you can use:
-
-    bigsudo yourlabs.docker install_firewall=true allow_tcp_ports=8080,8888 allow_udp_ports=53,5353 @host
-
-If you don't want to install or modify the firewall run:
-
     bigsudo yourlabs.docker @host
 
 Best to run after ``bigsudo yourlabs.ssh @host``.
