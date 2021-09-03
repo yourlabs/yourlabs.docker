@@ -2,6 +2,10 @@
 
 One-liner to run dockerd with a firewall:
 
+    bigsudo yourlabs.docker install_firewall=true @host
+
+If you don't want to install or modify the firewall run:
+
     bigsudo yourlabs.docker @host
 
 Best to run after ``bigsudo yourlabs.ssh @host``.

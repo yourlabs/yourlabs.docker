@@ -71,6 +71,7 @@
     state: present
 
 - name: Put docker being a secure firewall
+  when: install_firewall is defined and install_firewall == "true"
   include_role: name=yourlabs.firewall
   vars:
     rules: |
@@ -96,8 +97,7 @@
       {% endif %}
       -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
       -A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
-      -A TCP -p tcp -m tcp --dport 22 -j ACCEPT
-      -A TCP -p tcp -m tcp --dport 2222 -j ACCEPT
+      -A TCP -p tcp -m tcp --dport {{ ansible_ssh_port }} -j ACCEPT
       # allow netdata proxy
       -A TCP -i docker0 -p tcp -m tcp --dport 19999 --dst 172.17.0.1 --src 172.17.0.1/16 -j ACCEPT
       -A TCP -i docker0 -p tcp -m tcp --dport 4949 -j ACCEPT
@@ -115,6 +115,7 @@
       COMMIT
 
 - name: /etc/systemd/system/iptables.service.d/override.conf
+  when: install_firewall is defined and install_firewall == "true"
   notify: Apply firewall
   copy:
     dest: /etc/systemd/system/{{ firewall_service }}.service.d/override.conf
