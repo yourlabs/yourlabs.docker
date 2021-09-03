@@ -107,7 +107,7 @@
       {% endif %}
       -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
       -A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
-      -A TCP -p tcp -m tcp --dport {{ ansible_ssh_port }} -j ACCEPT
+      -A TCP -p tcp -m tcp --dport {{ ansible_ssh_port | default(22, True)}} -j ACCEPT
       {% if allow_tcp is defined and allow_tcp|length>0 %}
       {% for port in allow_tcp %}
       -A TCP -p tcp -m tcp --dport {{ port }} -j ACCEPT
