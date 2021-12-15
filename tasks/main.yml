@@ -27,12 +27,12 @@
   vars:
     key_id: '9DC858229FC7DD38854AE2D88D81803C0EBFCD88'
     key_url: https://download.docker.com/linux/ubuntu/gpg
-    repo: deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release|lower }} edge
+    repo: deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_distribution_release|lower }} stable
 
 - name: Include OS specific vars file
   include_vars: 'vars/{{ hostvars[inventory_hostname]["ansible_os_family"] }}.yml'
 
-- name: Install paramiko package for docker-compose
+- name: Install packages...
   package:
     name: '{{ pkgs }}'
     state: latest
