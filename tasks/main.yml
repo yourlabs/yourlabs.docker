@@ -70,8 +70,13 @@
     name: iproute2
     state: present
 
+- name: check if we are inside a docker container
+  shell: '[ -f  "/.dockerenv" ] && echo "true" || echo "false"'
+  register: is_docker_container
+
 - name: Put docker being a secure firewall
   include_role: name=yourlabs.firewall
+  when: is_docker_container.stdout == "false"
   vars:
     rules: |
       *filter
@@ -116,8 +121,9 @@
 
 - name: /etc/systemd/system/iptables.service.d/override.conf
   notify: Apply firewall
+  when: is_docker_container.stdout == "false"
   copy:
-    dest: /etc/systemd/system/{{ firewall_service }}.service.d/override.conf
+    dest: /etc/systemd/system/{{ firewall_service | default('iptables') }}.service.d/override.conf
     content: |
       [Unit]
       Before=docker.service
