@@ -3,10 +3,11 @@ testing:
   image: yourlabs/ansible
   script:
     - ANSIBLE_HOST_KEY_CHECKING=False
+      ANSIBLE_SSH_RETRIES=5
       bigsudo .  root@target ansible_ssh_pass=root -v | tee out
     - grep 'unreachable=0.*failed=0' out
   services:
-    - name: docker.io/yourlabs/sshd:ubuntu2004
+    - name: docker.io/yourlabs/sshd:ubtest
       alias: target
 
 code_quality:
